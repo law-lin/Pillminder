@@ -25,8 +25,23 @@ const columns = [
   {
     title: 'Action',
     key: 'action',
-    render: () => (
-      <Button type='primary' danger>
+    dataIndex: 'key',
+    render: (key) => (
+      <Button
+        type='primary'
+        danger
+        onClick={async () => {
+          await firebase
+            .firestore()
+            .collection('users')
+            .doc(firebase.auth().currentUser.uid)
+            .collection('reminders')
+            .doc(key)
+            .delete();
+
+          firebase.storage().ref();
+        }}
+      >
         Delete
       </Button>
     ),
@@ -44,10 +59,8 @@ function DashboardPage() {
       .get();
 
     let data = [];
-    let i = 0;
     querySnapshot.forEach((doc) => {
-      data.push(Object.assign({ key: i }, doc.data()));
-      i++;
+      data.push(Object.assign({ key: doc.id }, doc.data()));
     });
     setData(data);
   }, []);
