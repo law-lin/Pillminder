@@ -1,6 +1,7 @@
 node_modules/
 
 keys.json
+firestore_keys.json
 
 pills.jpg
 
