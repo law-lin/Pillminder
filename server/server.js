@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const multer = require('multer');
 const cors = require('cors');
+const text2num = require('./text2num.js');
 
 const vision = require('@google-cloud/vision');
 
@@ -34,8 +35,11 @@ app.post('/extract', getFields.none(), async (req, res) => {
   const detections = result.textAnnotations;
   description = detections[0]['description'];
 
+  const details = text2num(description);
+
   let response = {
-    description: description,
+    description,
+    details,
   };
 
   res.status(200).send(response);

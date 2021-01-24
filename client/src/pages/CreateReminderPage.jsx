@@ -119,7 +119,7 @@ function CreateReminderPage() {
         title,
         notificationSetting,
         photoUrl: url,
-        details,
+        details: details.details,
       });
     history.push('/dashboard');
   };
