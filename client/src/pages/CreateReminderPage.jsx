@@ -100,13 +100,16 @@ function CreateReminderPage() {
     await firebase.storage().ref(imageSrc.name).put(imageSrc);
     const url = await firebase.storage().ref(imageSrc.name).getDownloadURL();
 
-    const response = await fetch('/extract', {
+    const response = await fetch('http://localhost:8000/extract', {
       method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify({
-        gcsImageUri: `gs://pillminder-1be7c.appspot.com${imageSrc.name}`,
+        gcsImageUri: `gs://pillminder-1be7c.appspot.com/${imageSrc.name}`,
       }),
     });
-
+    const details = await response.json();
     await firebase
       .firestore()
       .collection('users')
@@ -116,6 +119,7 @@ function CreateReminderPage() {
         title,
         notificationSetting,
         photoUrl: url,
+        details,
       });
     history.push('/dashboard');
   };
