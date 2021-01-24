@@ -20,7 +20,7 @@ function text2num(text) {
     frequency = 24;
   }
 
-  return 'Take ' + pills + ' pills(s) every ' + frequency + ' hour(s)';
+  return 'Take your pill in an hour!';
 }
 
 module.exports = text2num;
