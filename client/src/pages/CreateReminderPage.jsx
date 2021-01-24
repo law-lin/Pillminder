@@ -4,6 +4,7 @@ import { AiOutlineInbox } from 'react-icons/ai';
 import Webcam from 'react-webcam';
 import firebase from 'firebase/app';
 import { useHistory } from 'react-router-dom';
+import { v4 as uuidv4 } from 'uuid';
 
 const { Dragger } = Upload;
 const { Step } = Steps;
@@ -16,13 +17,7 @@ const ImageSelector = ({ onUpload }) => {
     const imageSrc = webcamRef.current.getScreenshot();
     const res = await fetch(imageSrc);
     const blob = await res.blob();
-    const file = new File([blob], 'unknown.png', { type: 'image/png' });
-    // let formData = new FormData();
-    // formData.append('image', file)
-    // const response = await fetch(uploadUrl, {
-    //   method: 'POST',
-    //   body: formData,
-    // });
+    const file = new File([blob], `${uuidv4()}.png`, { type: 'image/png' });
     onUpload(file);
   }, [webcamRef]);
 
@@ -36,7 +31,14 @@ const ImageSelector = ({ onUpload }) => {
             name='file'
             multiple={false}
             style={{ width: '500px' }}
-            beforeUpload={(file) => onUpload(file)}
+            beforeUpload={(file) => {
+              const blob = file.slice(0, file.size, file.type);
+              onUpload(
+                new File([blob], `${uuidv4()}.png`, {
+                  type: 'image/png',
+                })
+              );
+            }}
           >
             <AiOutlineInbox />
             <p>Click or drag file to this area to upload</p>
@@ -83,7 +85,7 @@ const steps = [
 function CreateReminderPage() {
   const [imageSrc, setImageSrc] = useState('');
   const [title, setTitle] = useState('');
-  const [notificationSetting, setNotificationSetting] = useState('');
+  const [notificationSetting, setNotificationSetting] = useState('both');
   const [current, setCurrent] = useState(0);
   const history = useHistory();
 
@@ -97,6 +99,14 @@ function CreateReminderPage() {
   const handleCreate = async () => {
     await firebase.storage().ref(imageSrc.name).put(imageSrc);
     const url = await firebase.storage().ref(imageSrc.name).getDownloadURL();
+
+    const response = await fetch('/extract', {
+      method: 'POST',
+      body: JSON.stringify({
+        gcsImageUri: `gs://pillminder-1be7c.appspot.com${imageSrc.name}`,
+      }),
+    });
+
     await firebase
       .firestore()
       .collection('users')
