@@ -43,16 +43,18 @@ app.post('/extract', getFields.none(), async (req, res) => {
   const detections = result.textAnnotations;
   description = detections[0]['description'];
 
-  const details = text2num(description);
+  const info = text2num(description);
 
   let response = {
     description,
-    details,
+    details: info.reminderMessage,
     reminderMessage: 'Take your pill in an hour!',
+    frequency: info.frequency,
+    numPills: info.pills,
   };
   twilioClient.messages
     .create({
-      body: 'Take your pill in an hour!',
+      body: 'Take your pill right now!',
       to: `+1${phoneNumber}`,
       from: '+13479708459',
     })

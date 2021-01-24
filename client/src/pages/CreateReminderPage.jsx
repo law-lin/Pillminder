@@ -129,6 +129,9 @@ function CreateReminderPage() {
         fullText: res.description,
         details: res.details,
         reminderMessage: res.reminderMessage,
+        frequency: res.frequency,
+        timeLeft: res.frequency,
+        pillCount: res.numPills,
       });
     history.push('/dashboard');
   };

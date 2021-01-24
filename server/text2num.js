@@ -45,7 +45,11 @@ function text2num(text) {
   if (pillsDes.includes('EVERY DAY' || 'DAILY')) {
     frequency = 24;
   }
-  return `Take ${pills} pill(s) every ${frequency} hour(s).`;
+  return {
+    reminderMessage: `Take ${pills} pill(s) every ${frequency} hour(s).`,
+    frequency,
+    pills,
+  };
 }
 
 module.exports = text2num;
