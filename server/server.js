@@ -1,3 +1,4 @@
+const dotenv = require('dotenv');
 const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
@@ -14,8 +15,10 @@ require('dotenv').config()
 const app = express();
 const port = 8000;
 
-let accountSid = process.env.TWILIO_ACCOUNT_SID;
-let authToken = process.env.TWILIO_AUTH_TOKEN;
+dotenv.config();
+
+const accountSid = process.env.TWILIO_ACCOUNT_SID;
+const authToken = process.env.TWILIO_AUTH_TOKEN;
 
 const twilioClient = new twilio(accountSid, authToken);
 
@@ -57,10 +60,11 @@ app.post('/extract', getFields.none(), async (req, res) => {
   let response = {
     description,
     details,
+    reminderMessage: 'Take your pill in an hour!',
   };
   twilioClient.messages
     .create({
-      body: details,
+      body: 'Take your pill in an hour!',
       to: `+1${phoneNumber}`,
       from: '+13479708459',
     })

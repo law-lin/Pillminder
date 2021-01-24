@@ -116,7 +116,7 @@ function CreateReminderPage() {
         phoneNumber,
       }),
     });
-    const details = await response.json();
+    const res = await response.json();
     await firebase
       .firestore()
       .collection('users')
@@ -126,7 +126,9 @@ function CreateReminderPage() {
         title,
         notificationSetting,
         photoUrl: url,
-        details: details.details,
+        fullText: res.description,
+        details: res.details,
+        reminderMessage: res.reminderMessage,
       });
     history.push('/dashboard');
   };
