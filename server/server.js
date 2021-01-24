@@ -29,7 +29,7 @@ app.post('/extract/', getFields.none(), async(req, res)=> {
     if (!gcsImageUri){
         res.status(400).send('No Uri Passed')
     }
-
+    
     const [result] = await client.textDetection(gcsImageUri)
 
     const detections = result.textAnnotations;
