@@ -99,7 +99,13 @@ function CreateReminderPage() {
   const handleCreate = async () => {
     await firebase.storage().ref(imageSrc.name).put(imageSrc);
     const url = await firebase.storage().ref(imageSrc.name).getDownloadURL();
+    const doc = await firebase
+      .firestore()
+      .collection('users')
+      .doc(firebase.auth().currentUser.uid)
+      .get();
 
+    const phoneNumber = doc.data().phoneNumber;
     const response = await fetch('http://localhost:8000/extract', {
       method: 'POST',
       headers: {
@@ -107,6 +113,7 @@ function CreateReminderPage() {
       },
       body: JSON.stringify({
         gcsImageUri: `gs://pillminder-1be7c.appspot.com/${imageSrc.name}`,
+        phoneNumber,
       }),
     });
     const details = await response.json();

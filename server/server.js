@@ -4,11 +4,16 @@ const path = require('path');
 const multer = require('multer');
 const cors = require('cors');
 const text2num = require('./text2num.js');
-
+const twilio = require('twilio');
 const vision = require('@google-cloud/vision');
 
 const app = express();
 const port = 8000;
+
+var accountSid = 'AC728d76209a6dacf8bd46448b45a8983b';
+var authToken = '8e67fcdb33461f4977e2caf5e684a964';
+
+const twilioClient = new twilio(accountSid, authToken);
 
 const client = new vision.ImageAnnotatorClient({
   keyFilename: 'keys.json',
@@ -24,7 +29,7 @@ app.get('/', async (req, res) => {
 });
 
 app.post('/extract', getFields.none(), async (req, res) => {
-  const { gcsImageUri } = req.body;
+  const { gcsImageUri, phoneNumber } = req.body;
 
   if (!gcsImageUri) {
     res.status(400).send('No Uri Passed');
@@ -41,6 +46,13 @@ app.post('/extract', getFields.none(), async (req, res) => {
     description,
     details,
   };
+  twilioClient.messages
+    .create({
+      body: details,
+      to: `+1${phoneNumber}`,
+      from: '+13479708459',
+    })
+    .then((message) => console.log(message.sid));
 
   res.status(200).send(response);
 });
