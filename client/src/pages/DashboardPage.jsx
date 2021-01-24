@@ -10,6 +10,11 @@ const columns = [
     dataIndex: 'title',
     key: 'title',
   },
+  // {
+  //   title: 'Reminder Message',
+  //   dataIndex: 'reminderMessage',
+  //   key: 'reminderMessage',
+  // },
   {
     title: 'Details',
     dataIndex: 'details',

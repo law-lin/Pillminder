@@ -3,15 +3,41 @@ function text2num(text) {
   let pills = 0;
   let frequency = 0;
   let indexPills;
-  if (
-    pillsDes.includes(
-      'ONE TABLET' || '1 TABLET' || 'ONE CAPSULE' || '1 CAPSULE'
-    )
-  ) {
-    if (pillsDes.includes('ONE TABLET' || 'ONE CAPSULE')) {
+
+  if (pillsDes.includes('ONE TABLET') || pillsDes.includes('1 TABLET')) {
+    if (pillsDes.includes('ONE TABLET')) {
       pillsDes = pillsDes.replace(/ONE/g, '1');
     }
     indexPills = pillsDes.search('1');
+  } else if (pillsDes.includes('TWO TABLET') || pillsDes.includes('2 TABLET')) {
+    if (pillsDes.includes('TWO TABLET')) {
+      pillsDes = pillsDes.replace(/TWO/g, '2');
+    }
+    indexPills = pillsDes.search('2');
+  } else if (
+    pillsDes.includes('THREE TABLET') ||
+    pillsDes.includes('3 TABLET')
+  ) {
+    if (pillsDes.includes('THREE TABLET')) {
+      pillsDes = pillsDes.replace(/THREE/g, '3');
+    }
+    indexPills = pillsDes.search('3');
+  } else if (
+    pillsDes.includes('FOUR TABLET') ||
+    pillsDes.includes('4 TABLET')
+  ) {
+    if (pillsDes.includes('FOUR TABLET')) {
+      pillsDes = pillsDes.replace(/FOUR/g, '4');
+    }
+    indexPills = pillsDes.search('4');
+  } else if (
+    pillsDes.includes('FIVE TABLET') ||
+    pillsDes.includes('5 TABLET')
+  ) {
+    if (pillsDes.includes('FIVE TABLET')) {
+      pillsDes = pillsDes.replace(/FIVE/g, '5');
+    }
+    indexPills = pillsDes.search('5');
   }
 
   pills = parseInt(pillsDes[indexPills]);
@@ -19,8 +45,7 @@ function text2num(text) {
   if (pillsDes.includes('EVERY DAY' || 'DAILY')) {
     frequency = 24;
   }
-
-  return 'Take your pill in an hour!';
+  return `Take ${pills} pill(s) every ${frequency} hour(s).`;
 }
 
 module.exports = text2num;
