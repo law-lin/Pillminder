@@ -3,21 +3,33 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const multer = require('multer');
 const cors = require('cors');
+const cron = require('node-cron')
 const text2num = require('./text2num.js');
 const twilio = require('twilio');
 const vision = require('@google-cloud/vision');
+const fs = require('firebase-admin')
+
+require('dotenv').config()
 
 const app = express();
 const port = 8000;
 
-var accountSid = 'AC728d76209a6dacf8bd46448b45a8983b';
-var authToken = '8e67fcdb33461f4977e2caf5e684a964';
+let accountSid = process.env.TWILIO_ACCOUNT_SID;
+let authToken = process.env.TWILIO_AUTH_TOKEN;
 
 const twilioClient = new twilio(accountSid, authToken);
 
-const client = new vision.ImageAnnotatorClient({
+const visionClient = new vision.ImageAnnotatorClient({
   keyFilename: 'keys.json',
 });
+
+const fsServiceAccount = 'firestore_keys.json';
+const { async } = require('q');
+fs.initializeApp({
+    credential: fs.credential.cert(fsServiceAccount)
+})
+
+const db = fs.firestore()
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -35,7 +47,7 @@ app.post('/extract', getFields.none(), async (req, res) => {
     res.status(400).send('No Uri Passed');
   }
 
-  const [result] = await client.textDetection(gcsImageUri);
+  const [result] = await visionClient.textDetection(gcsImageUri);
 
   const detections = result.textAnnotations;
   description = detections[0]['description'];
@@ -55,6 +67,39 @@ app.post('/extract', getFields.none(), async (req, res) => {
     .then((message) => console.log(message.sid));
 
   res.status(200).send(response);
+});
+
+cron.schedule('30 * * * *', async () => {
+  const querySnapshot = await db.collection('users').get();
+  querySnapshot.forEach(async (doc) => {
+    const phoneNumber = doc.data().phoneNumber
+    const reminder = await db.collection('users').doc(doc.id).collection('reminders').get();
+    reminder.forEach(async (r) => {
+      const timeLeft = r.data().timeLeft - .5
+
+      if(timeLeft <= 0){
+        const xAmt = r.data().pillCount;
+        const frequency = r.data().frequency
+        //  TODO: Feature add the name of the medication
+        let details = `Reminder to take ${xAmt} pill(s)`;
+        // console.log(r.data().reminderMessage);
+        
+        await db.collection('users').doc(doc.id).collection('reminders').doc(r.id).update({ timeLeft: frequency});
+
+        twilioClient.messages
+        .create({
+          body: details,
+          to: `+1${phoneNumber}`,
+          from: '+13479708459',
+        })
+        .then((message) => console.log(message.sid));
+      }
+      else{
+        await db.collection('users').doc(doc.id).collection('reminders').doc(r.id).update({ timeLeft: timeLeft})
+      }
+
+    });
+  });
 });
 
 app.listen(port, () => {
